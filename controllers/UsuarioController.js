@@ -125,10 +125,40 @@ module.exports = (app) => {
     });
     
     // [POST] => /usuario/logout
-    app.post(`/usuario/logout`, async (req, res) => {});
+    app.post(`/usuario/logout`, async (req, res) => {
+        const resp = {
+            status: 0,
+            data: null,
+            errors: []
+        };
 
-    // [GET] => /usuario
-    app.get("/usuario", async (req, res) => {});
+        if(!req.headers['authorization']){
+            resp.errors.push({
+                location: "header",
+                param: "Authorization",
+                msg: "A Session ID precisa ser informada!"
+            });
+            res.status(403).send(resp);
+            return
+        }
+        
+        const sessao = await Sessao.Get(`id = '${req.headers["authorization"]}'`);
+        
+        if(sessao.length == 0){
+            resp.errors.push({
+                param: "sid",
+                msg: "Sessão não encontrada."
+            });
+            res.status(404).send(resp);
+            return;
+        }
+        
+        Sessao.Delete(`id = '${req.headers["authorization"]}'`);
+        
+        resp.status = 1;
+        resp.msg = "Logout com sucesso!";
+        res.send(resp);
+    });
     
     // [GET] => /usuario/:id
     app.get("/usuario/perfil", async (req, res) => {
@@ -167,10 +197,5 @@ module.exports = (app) => {
         res.send(resp);
     });
     
-    // [PUT] => /usuario/:id
-    app.put("/usuario/:id", async (req, res) => {});
-    
-    // [DELETE] => /usuario
-    app.delete("/usuario/:id", async (req, res) => {});
 
 };
