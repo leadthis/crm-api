@@ -129,4 +129,51 @@ module.exports = (app) => {
         res.send(resp);
     });
 
+    // [GET] => /cliente/:id
+    app.get(`/cliente/:id`, async (req, res) => {
+        const { params } = req;
+
+        const resp = {
+            status: 0,
+            msg: "",
+            data: null,
+            errors: []
+        };
+
+        if(!req.headers['authorization']){
+            resp.errors.push({
+                location: "header",
+                param: "Authorization",
+                msg: "A Session ID precisa ser informada!"
+            });
+            return res.status(403).send(resp);
+        }
+
+        const session = await Sessao.Verificar(req.headers['authorization']);
+
+        if(session.status == 0){
+            resp.errors.push(
+                {
+                    "location": "params",
+                    "param": "sid",
+                    "msg": session.msg
+                }
+            );
+            return res.status(403).send(resp);
+        }
+
+        let cliente = await Cliente.Get(`usuario = '${session.usuario}' AND id = '${params.id}'`);
+        if(cliente.length == 0){
+            resp.errors.push({
+                param: "id",
+                msg: "Cliente não encontrado!"
+            });
+            return res.status(404).send(resp);
+        }
+
+        resp.status = 1
+        resp.data = cliente[0];
+        res.send(resp);
+    });
+
 };
