@@ -23,6 +23,34 @@ module.exports = () => {
         next();
     });
 
+    var fs = require("fs");
+    var directories = [ "util", "classes" ];
+    directories.forEach(dir => {
+        try{
+            var files = fs.readdirSync(dir);
+            files.forEach(function (file) {
+                var Class = require("../" + dir + "/" + file);
+                global[file.split(".")[0]] = Class;
+            });
+        }catch(e){
+            console.log(e);
+        }
+    });
+    
+    var fs = require("fs");
+    var directories = [ "Tools" ];
+    directories.forEach(dir => {
+        try{
+            var files = fs.readdirSync(dir);
+            files.forEach(function (file) {
+                var Class = require("../" + dir + "/" + file);
+                global[file.split(".")[0]] = Class;
+            });
+        }catch(e){
+            console.log(e);
+        }
+    });
+
     consign().include("controllers").into(app);
     return app;
 };
