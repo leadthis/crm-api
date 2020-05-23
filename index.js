@@ -1,4 +1,4 @@
-const app = require("./config/custom-express")();
+const app = require("./config")();
 
 const port = 3333;
 
