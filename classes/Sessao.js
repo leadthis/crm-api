@@ -19,6 +19,9 @@ class Sessao extends Classes
     static async Verificar(id){
         let sessao = await this.Get(`id = '${id}'`);
 
+        const now = new Date() / 1000 | 0;
+        const limit = now - (3600 * 5);
+
         if(sessao.length === 0){
             return {
                 status: 0,
@@ -28,12 +31,12 @@ class Sessao extends Classes
 
         sessao = sessao[0];
 
-        this.Update({ ultima_data: now }, `token = '${token}'`);
+        this.Update({ ultima_data: now }, `id = '${id}'`);
         
         return{
             status: 1,
             msg: "Sessão válida",
-            data: sessao
+            ...sessao
         };
 
     }

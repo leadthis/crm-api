@@ -124,11 +124,48 @@ module.exports = (app) => {
         res.send(resp);
     });
     
+    // [POST] => /usuario/logout
+    app.post(`/usuario/logout`, async (req, res) => {});
+
     // [GET] => /usuario
     app.get("/usuario", async (req, res) => {});
     
     // [GET] => /usuario/:id
-    app.get("/usuario/:id", async (req, res) => {});
+    app.get("/usuario/perfil", async (req, res) => {
+        const resp = {
+            status: 0,
+            msg: "",
+            data: null,
+            errors: []
+        };
+
+        if(!req.headers['authorization']){
+            resp.errors.push({
+                location: "header",
+                param: "Authorization",
+                msg: "A Session ID precisa ser informada!"
+            });
+            return res.status(403).send(resp);
+        }
+
+        const session = await Sessao.Verificar(req.headers['authorization']);
+
+        if(session.status == 0){
+            resp.errors.push(
+                {
+                    "location": "params",
+                    "param": "sid",
+                    "msg": session.msg
+                }
+            );
+            return res.status(403).send(resp);
+        }
+
+        const usuario = (await Usuario.Get(`id = '${session.usuario}'`))[0];
+        resp.status = 1;
+        resp.data = usuario;
+        res.send(resp);
+    });
     
     // [PUT] => /usuario/:id
     app.put("/usuario/:id", async (req, res) => {});
