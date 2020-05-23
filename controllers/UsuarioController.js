@@ -118,7 +118,7 @@ module.exports = (app) => {
         resp.status = 1;
         resp.msg = "Login realizado com sucesso!";
         resp.data = {
-            sid: session.token,
+            sid: session.id,
             date: session.ultima_data
         };
         res.send(resp);

@@ -1,13 +1,12 @@
 class Sessao extends Classes
 {
-    static fields = [ "id", "usuario", "token", "ultima_data" ];
+    static fields = [ "id", "usuario", "ultima_data" ];
     static table = "sessao";
 
     static async Generate(usuario){
         const data = {
             id: Util.generateId(),
             usuario: usuario,
-            token: Util.MD5(usuario + (new Date())),
             ultima_data: (new Date() / 1000 | 0)
         };
 
