@@ -4,12 +4,10 @@ module.exports = (app) => {
     app.post("/usuario", async (req, res) => {
         const { body } = req;
 
-        const resp = {
-            status: 0,
-            msg: "",
-            errors: [],
-            data : null,
-        };
+        const resp = {};
+        resp.status = 0;
+        resp.data = null;
+        resp.errors = [];
 
         let obrigatorias = [ "nome", "email", "senha" ];
 
@@ -19,7 +17,7 @@ module.exports = (app) => {
 
         req.assert("email", "Informe um email válido!").isEmail();
 
-        resp.errors = req.validationErrors();
+        resp.errors = req.validationErrors() || [];
 
         if(resp.errors.length > 0){
             res.status(400).send(resp);
@@ -44,6 +42,7 @@ module.exports = (app) => {
             nome: body.nome,
             email: body.email,
             senha: Usuario.HashPassword(body.senha, id),
+            data_criacao: new Date() / 1000 | 0
         };
 
         const create = await Usuario.Create(data);
