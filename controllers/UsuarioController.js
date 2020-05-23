@@ -58,13 +58,74 @@ module.exports = (app) => {
         resp.status = 1;
         resp.data = id;
         resp.msg = "Usuário criado com sucesso!";
+        res.status(201).send(resp);
+    });
+
+    // [POST] => /usuario/login
+    app.post("/usuario/login", async (req, res) => {
+        const { body } = req;
+
+        const resp = {
+            status: 0,
+            msg: "",
+            data: null,
+            errors: []
+        };
+        
+        const obrigatorios = [ "email", "senha" ];
+        obrigatorios.forEach(campo => {
+            req.assert(campo, `O campo '${campo}' é obrigatório!`).notEmpty();
+        });
+        
+        req.assert("email", `Informe um email válido!`).isEmail();
+
+        const validators = req.validationErrors();
+        resp.errors = (validators) ? resp.errors.concat(validators) : resp.errors;
+
+        if(resp.errors.length > 0){
+            res.status(400).send(resp);
+            return;
+        }
+
+        let usuario = await Usuario.Get(`email = '${body.email}'`);
+        if(usuario.length == 0){
+            resp.errors.push({
+                param: "email",
+                msg: "Email não encontrado!"
+            });
+            return res.status(404).send(resp);
+        }
+
+        usuario = usuario[0];
+
+        if(usuario.senha !== Usuario.HashPassword(body.senha, usuario.id)){
+            resp.errors.push({
+                param: "senha",
+                msg: "Senha incorreta!"
+            });
+            return res.status(401).send(resp);
+        }
+
+        const session = await Sessao.Generate(usuario.id);
+        if(session === false){
+            resp.errors.push({
+                location: "login",
+                msg: "Erro ao realizar Login"
+            });
+            return res.status(500).send(resp);
+        }
+
+        resp.status = 1;
+        resp.msg = "Login realizado com sucesso!";
+        resp.data = {
+            sid: session.token,
+            date: session.ultima_data
+        };
         res.send(resp);
     });
     
     // [GET] => /usuario
-    app.get("/usuario", async (req, res) => {
-
-    });
+    app.get("/usuario", async (req, res) => {});
     
     // [GET] => /usuario/:id
     app.get("/usuario/:id", async (req, res) => {});

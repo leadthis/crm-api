@@ -17,6 +17,10 @@ class Util
         return count;
     }
 
+    static MD5(str){
+        return require('md5')(str);
+    }
+
 }
 
 module.exports = Util;
