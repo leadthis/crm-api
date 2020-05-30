@@ -92,4 +92,48 @@ module.exports = (app) => {
         res.status(201).send(resp);
     });
 
+    // [GET] => /campanha
+    app.get(`/campanha`, async (req, res) => {
+        const query = req.query;
+        const resp = {};
+        resp.status = 0;
+        resp.data = null;
+        resp.errors = [];
+
+        if(!req.headers['authorization']){
+            resp.errors.push({
+                location: "header",
+                param: "Authorization",
+                msg: "A Session ID precisa ser informada!"
+            });
+            res.status(401).send(resp);
+            return;
+        }
+
+        const session = await Sessao.Verificar(req.headers['authorization']);
+        if(session.status !== 1){
+            resp.errors.push(
+                {
+                    "location": "params",
+                    "param": "sid",
+                    "msg": session.msg
+                }
+            );
+
+            res.status(403).send(resp);
+            return;
+        }
+
+        let where = `usuario = '${session.usuario}' AND excluido = 0`;
+        where += (query.where) ?  ` AND (${query.where})` : "";
+        let order_by = (query.order_by) ? query.order_by : "";
+        let limit = (query.limit) ? query.limit : "";
+
+        const campanhas = await Campanha.Get(where, order_by, limit);
+
+        resp.status = 1;
+        resp.data = campanhas;
+        res.send(resp);
+    });
+
 };
