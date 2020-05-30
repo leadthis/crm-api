@@ -196,4 +196,56 @@ module.exports = (app) => {
         res.send(resp);
     });
 
+    // [GET] => /campanha/:id
+    app.get(`/campanha/:id`, async (req, res) => {
+        const { params } = req;
+        const resp = {
+            status: 0,
+            msg: "",
+            data: null,
+            errors: []
+        };
+
+        if(!req.headers['authorization']){
+            resp.errors.push({
+                location: "header",
+                param: "Authorization",
+                msg: "A Session ID precisa ser informada!"
+            });
+            res.status(401).send(resp);
+            return;
+        }
+
+        const session = await Sessao.Verificar(req.headers['authorization']);
+        if(session.status !== 1){
+            resp.errors.push(
+                {
+                    "location": "params",
+                    "param": "sid",
+                    "msg": session.msg
+                }
+            );
+
+            res.status(403).send(resp);
+            return;
+        }
+
+        let campanha = await Campanha.Get(`id = '${params.id}' AND usuario = '${session.usuario}' AND excluido = 0`);
+
+        if(campanha.length == 0){
+            resp.errors.push({
+                param: "id",
+                msg: "Campanha não encontrada!"
+            });
+            return res.status(404).send(resp);
+        }
+
+        campanha = campanha[0];
+        campanha.regras =  await Regra.Get(`referencia = '${Campanha.entity}:${campanha.id}'`);
+        
+        resp.status = 1;
+        resp.data = campanha;
+        res.send(resp);
+    });
+
 };
