@@ -1,10 +1,10 @@
 const db = require("mysql");
 
 const con = db.createPool({
-    host: "127.0.0.1",
-    user: "root",
-    password: "",
-    database: "crm"
+    host: (PROD) ? "mysql669.umbler.com" :  "127.0.0.1",
+    user: (PROD) ? "ltcrm" : "root",
+    password: (PROD) ? "rocpase00" : "",
+    database: "lt-crm"
 });
 
 class DB

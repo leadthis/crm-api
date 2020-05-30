@@ -8,5 +8,5 @@ app.listen(port, async () => {
     console.log(`Rodando na porta ${port}`);
 
     const Jobs = require('./Jobs');
-    // Jobs();
+    Jobs();
 });
