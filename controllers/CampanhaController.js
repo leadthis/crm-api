@@ -136,4 +136,64 @@ module.exports = (app) => {
         res.send(resp);
     });
 
+    // [DELETE] => /campanha/:id
+    app.delete(`/campanha/:id`, async (req, res) => {
+        const { params } = req;
+        const resp = {
+            status: 0,
+            msg: "",
+            data: null,
+            errors: []
+        };
+
+        if(!req.headers['authorization']){
+            resp.errors.push({
+                location: "header",
+                param: "Authorization",
+                msg: "A Session ID precisa ser informada!"
+            });
+            res.status(401).send(resp);
+            return;
+        }
+
+        const session = await Sessao.Verificar(req.headers['authorization']);
+        if(session.status !== 1){
+            resp.errors.push(
+                {
+                    "location": "params",
+                    "param": "sid",
+                    "msg": session.msg
+                }
+            );
+
+            res.status(403).send(resp);
+            return;
+        }
+
+        let campanha = await Campanha.Get(`id = '${params.id}' AND usuario = '${session.usuario}' AND excluido = 0`);
+
+        if(campanha.length == 0){
+            resp.errors.push({
+                param: "id",
+                msg: "Campanha não encontrada!"
+            });
+            return res.status(404).send(resp);
+        }
+
+        campanha = campanha[0];
+
+        const excluir = await Campanha.Delete(`id = '${params.id}'`);
+
+        if(excluir.status !== 1){
+            resp.errors.push({
+                msg: "Erro ao excluir"
+            });
+            return res.status(500).send(resp);
+        }
+
+        resp.status = 1;
+        resp.msg = "Campanha excluída com sucesso!";
+        res.send(resp);
+    });
+
 };
