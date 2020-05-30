@@ -39,7 +39,7 @@ const Jobs = async () => {
 
         });
 
-        const regras_query = (__regras.map((regra) => {
+        let regras_query = (__regras.map((regra) => {
             let campo = (["id", "status"].includes(regra.campo)) ? "`cliente`." + regra.campo : regra.campo
 
             let valor = regra.valor;
@@ -71,11 +71,14 @@ const Jobs = async () => {
             return `${campo} ${regra.comparador} '${valor}'`;
         })).join(" AND ");
 
+        if(campanhasEnviadas.length > 0){
+            regras_query += ` AND id NOT IN ( '${campanhasEnviadas.join("', '")}' )`;
+        }
+
         const clientes = await Cliente.Get(regras_query);
         if(!clientes || clientes.length == 0) return;
 
         clientes.forEach(async cliente => {
-            
             const mail = new Mailer();
             mail.to = cliente.email;
             mail.subject = "Teste";
