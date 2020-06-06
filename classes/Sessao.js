@@ -1,6 +1,6 @@
 class Sessao extends Classes
 {
-    static fields = [ "id", "usuario", "ultima_data" ];
+    static fields = [ "id", "usuario", "tipo_acesso", "ultima_data" ];
     static table = "sessao";
 
     static async Generate(usuario){
