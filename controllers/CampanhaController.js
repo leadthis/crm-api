@@ -131,6 +131,10 @@ module.exports = (app) => {
 
         const campanhas = await Campanha.Get(where, order_by, limit);
 
+        const count = await Campanha.Count(where);
+
+        res.set("X-TOTAL-COUNT", count);
+
         resp.status = 1;
         resp.data = campanhas;
         res.send(resp);
