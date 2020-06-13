@@ -52,7 +52,7 @@ module.exports = (app) => {
             return res.status(400).send(resp);
         }
 
-        const campanha_existe = await Campanha.Get(`titulo = '${body.titulo}'`);
+        const campanha_existe = await Campanha.Get(`titulo = '${body.titulo}' AND usuario = '${session.usuario}' AND excluido = 0`);
         if(campanha_existe.length > 0){
             resp.errors.push({
                 param: "titulo",
